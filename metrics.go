@@ -37,6 +37,9 @@ type DatabaseMetrics struct {
 	LogCount     string
 	TodayCalls   string
 	TotalBalance string
+	Revenue      string
+	ProviderCost string
+	Profit       string
 }
 
 type RequestEntry struct {
@@ -111,8 +114,14 @@ func collectMetrics(ex Executor, containerPrefix string) *Metrics {
 	m.Database.ActorCount   = sqliteQuery("SELECT COUNT(*) FROM actors;")
 	m.Database.LogCount     = sqliteQuery("SELECT COUNT(*) FROM capability_logs;")
 	m.Database.TodayCalls   = sqliteQuery("SELECT COUNT(*) FROM capability_logs WHERE date(invoked_at) = date('now');")
-	balance                 := sqliteQuery("SELECT COALESCE(ROUND(SUM(balance_cents)/100.0, 2), 0) FROM actors;")
+	balance                 := sqliteQuery("SELECT COALESCE(ROUND(SUM(balance_cents)/100.0, 4), 0) FROM actors;")
 	m.Database.TotalBalance  = "$" + balance
+	revenue                 := sqliteQuery("SELECT COALESCE(ROUND(SUM(total_charged_cents)/100.0, 4), 0) FROM capability_logs WHERE status = 'success';")
+	m.Database.Revenue       = "$" + revenue
+	cost                    := sqliteQuery("SELECT COALESCE(ROUND(SUM(raw_cost_cents)/100.0, 4), 0) FROM capability_logs WHERE status = 'success';")
+	m.Database.ProviderCost  = "$" + cost
+	profit                  := sqliteQuery("SELECT COALESCE(ROUND(SUM(markup_cents)/100.0, 4), 0) FROM capability_logs WHERE status = 'success';")
+	m.Database.Profit        = "$" + profit
 
 	// Recent logs
 	logs, err := ex.Run(fmt.Sprintf(`docker logs --tail 80 %s 2>&1`, name))

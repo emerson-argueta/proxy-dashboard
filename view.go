@@ -92,11 +92,18 @@ func (m model) View() string {
 		{"Container", shortName(met.Container.Name)},
 	})
 
-	colWidth := (w - 6) / 3
+	revenueBox := renderSection("REVENUE", []row{
+		{"Charged", met.Database.Revenue},
+		{"Provider Cost", met.Database.ProviderCost},
+		{"Profit", lipgloss.NewStyle().Foreground(green).Bold(true).Render(met.Database.Profit)},
+	})
+
+	colWidth := (w - 8) / 4
 	cols := lipgloss.JoinHorizontal(lipgloss.Top,
 		boxStyle.Width(colWidth).Render(sysBox),
 		boxStyle.Width(colWidth).Render(dbBox),
 		boxStyle.Width(colWidth).Render(actorBox),
+		boxStyle.Width(colWidth).Render(revenueBox),
 	)
 	b.WriteString(cols + "\n")
 
