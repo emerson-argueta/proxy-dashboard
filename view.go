@@ -96,6 +96,7 @@ func (m model) View() string {
 		{"Charged", met.Database.Revenue},
 		{"Provider Cost", met.Database.ProviderCost},
 		{"Profit", lipgloss.NewStyle().Foreground(green).Bold(true).Render(met.Database.Profit)},
+		{"Liability", lipgloss.NewStyle().Foreground(yellow).Bold(true).Render(met.Database.DeferredLiability)},
 	})
 
 	colWidth := (w - 8) / 4
