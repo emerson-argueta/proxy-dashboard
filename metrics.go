@@ -115,7 +115,7 @@ func collectMetrics(ex Executor, containerPrefix string) *Metrics {
 	m.Database.ActorCount   = sqliteQuery("SELECT COUNT(*) FROM actors;")
 	m.Database.LogCount     = sqliteQuery("SELECT COUNT(*) FROM capability_logs;")
 	m.Database.TodayCalls   = sqliteQuery("SELECT COUNT(*) FROM capability_logs WHERE date(invoked_at) = date('now');")
-	balance                 := sqliteQuery("SELECT COALESCE(ROUND(SUM(balance_cents)/100.0, 4), 0) FROM actors;")
+	balance                 := sqliteQuery("SELECT COALESCE(ROUND((SUM(paid_balance_cents) + SUM(free_balance_cents))/100.0, 2), 0) FROM actors;")
 	m.Database.TotalBalance  = "$" + balance
 	revenue                     := sqliteQuery("SELECT COALESCE(ROUND(SUM(total_charged_cents)/100.0, 4), 0) FROM capability_logs WHERE status = 'success';")
 	m.Database.Revenue           = "$" + revenue
@@ -123,7 +123,7 @@ func collectMetrics(ex Executor, containerPrefix string) *Metrics {
 	m.Database.ProviderCost      = "$" + cost
 	profit                      := sqliteQuery("SELECT COALESCE(ROUND(SUM(markup_cents)/100.0, 4), 0) FROM capability_logs WHERE status = 'success';")
 	m.Database.Profit            = "$" + profit
-	liability                   := sqliteQuery("SELECT COALESCE(ROUND(SUM(balance_cents)/100.0, 2), 0) FROM actors WHERE balance_cents > 0;")
+	liability                   := sqliteQuery("SELECT COALESCE(ROUND(SUM(paid_balance_cents)/100.0, 2), 0) FROM actors WHERE paid_balance_cents > 0;")
 	m.Database.DeferredLiability = "$" + liability
 
 	// Recent logs
